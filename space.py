@@ -108,13 +108,13 @@ def clear_logs(*, delete=False):
     If it is occupied, OccupiedError will be raised."""
 
     if delete:
-        log_file = fr"{contents_dir}\Contents\deleted_files.log"
+        log_file = os.path.join(contents_dir, "Contents", "deleted_files.log")
         try:
             os.remove(log_file)
             return f"{log_file} was successfully removed."
         except PermissionError as error:
             raise OccupiedError(log_file, error) from None
-    with open(fr"{contents_dir}\Contents\deleted_files.log", "w+"):
+    with open(log_file, "w+"):
         return "Wiped log file"
 
 
@@ -122,7 +122,7 @@ def get_total_stats():
     """Get the total stats in the file.
     This function returns the total space deleted in Megabytes
     and the total files deleted."""
-    return json.load(open(fr"{contents_dir}\Contents\stats.json", "r+"))
+    return json.load(open(os.path.join(contents_dir, "Contents", "stats.json"), "r+"))
 
 
 def _enable_colour(*, enable=True):
@@ -184,7 +184,7 @@ def _remove_all_files(display_removed: bool = False, log_files: bool = True):
         try:
             json_file_contents = get_total_stats()
         except (JSONDecodeError, FileNotFoundError):
-            with open(fr"{contents_dir}\Contents\stats.json", "w+") as stats:
+            with open(os.path.join(contents_dir, "Contents", "stats.json"), "w+") as stats:
                 json.dump(template, stats)
         json_file_contents = get_total_stats()
 
@@ -195,7 +195,7 @@ def _remove_all_files(display_removed: bool = False, log_files: bool = True):
         }
         if log_files:
             logging.basicConfig(
-                filename=fr"{contents_dir}\Contents\deleted_files.log",
+                filename=os.path.join(contents_dir, "Contents", "deleted_files.log"),
                 format="%(asctime)s %(message)s",
                 filemode="a",
             )
@@ -219,7 +219,7 @@ def _remove_all_files(display_removed: bool = False, log_files: bool = True):
                 sum(total_space) / 1_000_000,
             )
 
-        with open(fr"{contents_dir}\Contents\stats.json", "w+") as json_file:
+        with open(os.path.join(contents_dir, "Contents", "stats.json"), "w+") as json_file:
             json.dump(stats, json_file)
         json_file_contents = get_total_stats()
 

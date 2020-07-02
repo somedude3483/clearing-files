@@ -17,7 +17,7 @@ This function returns the contents in stats.json.
 
 It takes no arguments.
 ===================================================================================
-get_folder_size(*, cwd=None, skip_files=None, display_all_files=True)
+_get_folder_size(*, cwd=None, skip_files=None, display_all_files=True)
 This function gets the size of a folder.
 
 The keyword arguments it accepts are:
@@ -27,9 +27,9 @@ display_all_files - To print out each file and the space it takes to the console
 
 This function is ran in the main function.
 ===================================================================================
-remove_all_files(display_removed: bool = False, log_files: bool = True):
+_remove_all_files(display_removed: bool = False, log_files: bool = True):
 
-This function removes the files that the function get_folder_size logged.
+This function removes the files that the function _get_folder_size logged.
 It warns you if you are in deletion mode.
 
 It logs the amount of files that you have deleted called deleted_files.log.
@@ -44,7 +44,7 @@ however if it's set to false, it will not log anything and won't create a file.
 def main(*, cwd: str, skip_list: list, remove_files: bool = False, fast_mode: bool = False):
 This is the main function.
 
-It prints each file and the space it takes that the function get_folder_size yielded.
+It prints each file and the space it takes that the function _get_folder_size yielded.
 """
 
 import warnings
@@ -101,20 +101,6 @@ class OccupiedError(SpaceError):
                     % (self.second_exc))
 
 
-def _enable_colour(*, enable=True):
-    """Enables colour in other terminals that don't support colour"""
-    if not is_idle:
-        if enable:
-            kernel32 = ctypes.WinDLL("kernel32")
-            stdout_, mode = kernel32.GetStdHandle(-11), ctypes.c_ulong()
-
-            kernel32.GetConsoleMode(stdout_, ctypes.byref(mode))
-            kernel32.SetConsoleMode(stdout_, mode.value | 4)
-            return ["\033[01m\033[31m", "\033[01m\033[32m "]
-        return "\033[0m"
-    return ""
-
-
 def clear_logs(*, delete=False):
     """Clears deleted_files.log in the Contents folder.
     Takes keyword argument clear_logs(*, delete=False)
@@ -139,7 +125,22 @@ def get_total_stats():
     return json.load(open(fr"{contents_dir}\Contents\stats.json", "r+"))
 
 
-def get_folder_size(*, cwd=None, skip_files=None, display_all_files=True):
+def _enable_colour(*, enable=True):
+    """Enables colour in other terminals that don't support colour"""
+    if not is_idle:
+        if enable:
+            kernel32 = ctypes.WinDLL("kernel32")
+            stdout_, mode = kernel32.GetStdHandle(-11), ctypes.c_ulong()
+
+            kernel32.GetConsoleMode(stdout_, ctypes.byref(mode))
+            kernel32.SetConsoleMode(stdout_, mode.value | 4)
+            return ["\033[01m\033[31m", "\033[01m\033[32m "]
+        return "\033[0m"
+    return ""
+
+
+
+def _get_folder_size(*, cwd=None, skip_files=None, display_all_files=True):
     """Yields the space of each file not including the unwanted file in KB."""
     try:
         if os.path.isdir(cwd):
@@ -166,8 +167,8 @@ def get_folder_size(*, cwd=None, skip_files=None, display_all_files=True):
             ) from None
 
 
-def remove_all_files(display_removed: bool = False, log_files: bool = True):
-    """Removes files in kwarg cwd mentioned in function get_folder_size."""
+def _remove_all_files(display_removed: bool = False, log_files: bool = True):
+    """Removes files in kwarg cwd mentioned in function _get_folder_size."""
     print(_enable_colour(enable=True)[0] if not is_idle else "")
     warnings.warn(
         "\n\nYou are currently in delete files mode. "
@@ -252,7 +253,7 @@ def main(
         skip_list.extend(main_files)
     print(cwd)
 
-    for logged_file in get_folder_size(
+    for logged_file in _get_folder_size(
                         cwd=cwd,  # Set this to the directory you want to scan.
                         display_all_files=not fast_mode,
                         # ^ if True, display each file and how much they take in KB.
@@ -262,14 +263,14 @@ def main(
     print("{:.2f}MB in current folder.".format(sum(total_space) / 1_000_000))
 
     if remove_files:
-        remove_all_files(not fast_mode, True)
+        _remove_all_files(not fast_mode, True)
 
 
 if __name__ == "__main__":
     if not os.path.isdir(contents_dir):
         os.mkdir("Contents")
     main(
-        cwd=r"PUT DIRECTORY HERE",
+        cwd=r"DIRECTORY HERE",
         skip_list=[  # List of ignored files
             "data_0",
             "data_1",

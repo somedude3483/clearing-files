@@ -139,7 +139,6 @@ def _enable_colour(*, enable=True):
     return ""
 
 
-
 def _get_folder_size(*, cwd=None, skip_files=None, display_all_files=True):
     """Yields the space of each file not including the unwanted file in KB."""
     try:
